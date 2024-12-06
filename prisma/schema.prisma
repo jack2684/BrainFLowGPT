@@ -44,4 +44,17 @@ model User {
   @@map("auth.users")
 }
 
+model Conversation {
+  id        String   @id @default(uuid())
+  userId    String   @default("anonymous") @map("user_id")
+  flowData  Json     @map("flow_data")
+  title     String?
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@map("conversations")
+  @@index([userId])
+  @@index([createdAt])
+}
+
 // You can add more models here as needed
