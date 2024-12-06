@@ -4,11 +4,12 @@ import OpenAI from 'openai'
 import { ChatMessage } from '@/types/chat'
 
 const openai = new OpenAI({
-  apiKey: process.env.NEXT_PUBLIC_OPENAI_API_KEY
+  apiKey: process.env.OPENAI_API_KEY
 })
 
 export async function getAIResponse(input: string, context: ChatMessage[] = []) {
 
+  console.log("The openai api key is: ", process.env.OPENAI_API_KEY)
   try {
     const messages: ChatMessage[] = [
       {
