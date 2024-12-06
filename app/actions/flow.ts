@@ -3,15 +3,37 @@
 import { prisma } from '@/lib/db'
 import { ulid } from 'ulid'
 
-export async function saveFlow(flowData: any) {
+interface FlowData {
+  id?: string;  // Optional ID for existing conversations
+  nodes: any[];
+  edges: any[];
+  timestamp: string;
+  metadata: {
+    version: string;
+    exportType: string;
+  }
+}
+
+export async function saveFlow(flowData: FlowData) {
   try {
-    const conversation = await prisma.conversation.create({
-      data: {
-        id: ulid(),
+    // If flowData has an id, it's an update; otherwise, create new
+    const id = flowData.id || ulid()
+
+    const conversation = await prisma.conversation.upsert({
+      where: {
+        id: id,
+      },
+      update: {
         flowData: flowData,
-        title: 'Untitled Flow', // You can make this parameter optional
+        updatedAt: new Date(),
+      },
+      create: {
+        id: id,
+        flowData: flowData,
+        title: 'Untitled Flow',
       },
     })
+
     return { success: true, id: conversation.id }
   } catch (error) {
     console.error('Error saving flow:', error)

@@ -377,7 +377,7 @@ export function EnhancedFlexibleChatFlowchartComponent() {
   })
   const updateRequiredRef = useRef(false)
   const updateTimeoutRef = useRef<NodeJS.Timeout | null>(null)
-  const { messages, isLoading, error, sendMessage, downloadChatAsJson, downloadFlowAsJson, importFlowFromJson, saveFlowToDb } = useChat()
+  const { messages, isLoading, error, sendMessage, downloadChatAsJson, downloadFlowAsJson, importFlowFromJson, saveFlowToDb, conversationId } = useChat()
   const reactFlowInstance = useRef<ReactFlowInstance | null>(null);
 
   const onConnect = useCallback(
@@ -663,7 +663,9 @@ export function EnhancedFlexibleChatFlowchartComponent() {
       const id = await saveFlowToDb(nodes, edges)
       toast({
         title: "Success",
-        description: "Flow saved successfully",
+        description: conversationId
+          ? "Flow updated successfully"
+          : "Flow saved successfully",
       })
     } catch (error) {
       toast({
