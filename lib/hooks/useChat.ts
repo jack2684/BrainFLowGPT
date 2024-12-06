@@ -1,6 +1,7 @@
 import { useState, useCallback } from 'react'
 import { createMessage } from '@/lib/openai'
 import { Node, Edge } from 'reactflow'
+import { saveFlow } from '@/app/actions/flow'
 
 interface Message {
   role: 'user' | 'assistant' | 'system'
@@ -177,6 +178,41 @@ export function useChat() {
     }
   }, [messages])
 
+  const saveFlowToDb = useCallback(async (nodes: Node[], edges: Edge[]) => {
+    try {
+      // Clean up the nodes data to ensure proper serialization
+      const cleanNodes = nodes.map(node => ({
+        ...node,
+        data: {
+          input: node.data.input,
+          response: node.data.response,
+          height: node.data.height
+        }
+      }))
+
+      const flowData = {
+        nodes: cleanNodes,
+        edges: edges,
+        timestamp: new Date().toISOString(),
+        metadata: {
+          version: '1.0',
+          exportType: 'flow_conversation'
+        }
+      }
+
+      const result = await saveFlow(flowData)
+
+      if (!result.success) {
+        throw new Error(result.error)
+      }
+
+      return result.id
+    } catch (err) {
+      console.error('Error saving flow:', err)
+      throw new Error('Failed to save flow to database')
+    }
+  }, [])
+
   return {
     messages,
     isLoading,
@@ -185,5 +221,6 @@ export function useChat() {
     downloadChatAsJson,
     downloadFlowAsJson,
     importFlowFromJson,
+    saveFlowToDb,
   }
 }

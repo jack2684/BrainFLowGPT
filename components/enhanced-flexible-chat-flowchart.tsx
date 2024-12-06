@@ -34,6 +34,7 @@ import { NodeData, ChatMessage, TreeNode } from '@/types/chat'
 import { buildChatContext } from '@/lib/chat-context'
 import { ulid } from 'ulid'
 import { useChat } from '@/lib/hooks/useChat'
+import { saveFlow } from '@/app/actions/flow'
 
 const NODE_WIDTH = 500
 const GRID_SPACING_X = 512
@@ -376,7 +377,7 @@ export function EnhancedFlexibleChatFlowchartComponent() {
   })
   const updateRequiredRef = useRef(false)
   const updateTimeoutRef = useRef<NodeJS.Timeout | null>(null)
-  const { messages, isLoading, error, sendMessage, downloadChatAsJson, downloadFlowAsJson, importFlowFromJson } = useChat()
+  const { messages, isLoading, error, sendMessage, downloadChatAsJson, downloadFlowAsJson, importFlowFromJson, saveFlowToDb } = useChat()
   const reactFlowInstance = useRef<ReactFlowInstance | null>(null);
 
   const onConnect = useCallback(
@@ -657,6 +658,21 @@ export function EnhancedFlexibleChatFlowchartComponent() {
     event.target.value = ''
   }, [importFlowFromJson, setNodes, setEdges, onAdd, onDelete, updateNodeData, setHighlightInfo, findParentChain, updateNodePositions])
 
+  const handleSaveFlow = async () => {
+    try {
+      const id = await saveFlowToDb(nodes, edges)
+      toast({
+        title: "Success",
+        description: "Flow saved successfully",
+      })
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: error instanceof Error ? error.message : "Failed to save flow",
+      })
+    }
+  }
+
   return (
     <div className="w-full h-[66vh] rounded-lg my-10 shadow-lg">
       <ReactFlow
@@ -730,7 +746,7 @@ export function EnhancedFlexibleChatFlowchartComponent() {
           <Button
             variant="outline"
             size="sm"
-            onClick={() => downloadFlowAsJson(nodes, edges)}
+            onClick={handleSaveFlow}
             className="flex items-center gap-2"
           >
             <CloudUpload className="h-4 w-4" />

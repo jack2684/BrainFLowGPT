@@ -9,8 +9,13 @@
     "lint": "next lint",
     "prisma:generate": "prisma generate",
     "prisma:push": "prisma db push",
-    "prisma:studio": "prisma studio",
-    "prisma:migrate": "prisma migrate dev"
+    "db:setup": "dotenv -- make db-migrations",
+    "db:push": "dotenv -- make db-push",
+    "db:studio": "dotenv -- make db-studio",
+    "supabase:start": "dotenv -- make supabase-start",
+    "supabase:stop": "dotenv -- make supabase-stop",
+    "setup": "dotenv -- make setup",
+    "db:seed": "dotenv -- make db-seed"
   },
   "dependencies": {
     "@prisma/client": "^5.22.0",
@@ -43,6 +48,7 @@
     "postcss": "^8.4.49",
     "prisma": "^5.22.0",
     "tailwindcss": "^3.4.15",
-    "typescript": "^5"
+    "typescript": "^5",
+    "dotenv-cli": "^7.3.0"
   }
 }
