@@ -430,7 +430,25 @@ export function EnhancedFlexibleChatFlowchartComponent() {
     ])
 
     updateRequiredRef.current = true
-  }, [setNodes, setEdges, edges])
+
+    // Auto-save after adding the new node
+    // We need to wait for the state updates to complete
+    setTimeout(async () => {
+      try {
+        setSaveState('saving')
+        await saveFlowToDb(nodes, edges)
+        setSaveState('saved')
+      } catch (error) {
+        setSaveState('idle')
+        console.error('Auto-save error:', error)
+        toast({
+          title: "Auto-save Error",
+          description: error instanceof Error ? error.message : "Failed to auto-save flow",
+          variant: "destructive"
+        })
+      }
+    }, 100)
+  }, [setNodes, setEdges, edges, nodes, saveFlowToDb]) // Added dependencies
 
   const onDelete = useCallback((id: string) => {
     const deleteNodeAndChildren = (nodeId: string, currentNodes: Node[], currentEdges: Edge[]): { nodes: Node[], edges: Edge[] } => {
