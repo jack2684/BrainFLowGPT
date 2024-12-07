@@ -386,6 +386,7 @@ export function EnhancedFlexibleChatFlowchartComponent() {
   const reactFlowInstance = useRef<ReactFlowInstance | null>(null);
   const [showHistory, setShowHistory] = useState(false)
   const [saveState, setSaveState] = useState<'idle' | 'saving' | 'saved'>('idle')
+  const [refreshTrigger, setRefreshTrigger] = useState(0)
 
   const onConnect = useCallback(
     (params: Edge | Connection) => setEdges((eds) => addEdge({ ...params, animated: true }, eds)),
@@ -397,6 +398,7 @@ export function EnhancedFlexibleChatFlowchartComponent() {
       setSaveState('saving')
       await saveFlowToDb(nodes, edges)
       setSaveState('saved')
+      setRefreshTrigger(prev => prev + 1)
     } catch (error) {
       setSaveState('idle')
       console.error('Auto-save error:', error)
@@ -933,9 +935,9 @@ export function EnhancedFlexibleChatFlowchartComponent() {
         <ConversationList
           onSelect={(id) => {
             loadConversation(id)
-            // Note: We're not closing the history panel anymore
           }}
           onClose={() => setShowHistory(false)}
+          refreshTrigger={refreshTrigger}
         />
       )}
     </div>
