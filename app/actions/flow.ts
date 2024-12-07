@@ -48,6 +48,7 @@ export async function saveFlow(flowData: FlowData) {
         id: id,
       },
       update: {
+        id: id,
         flowData: flowData,
         title: flowData.nodes[1]?.data?.input?.slice(0, 50) || '[Empty Flow]',
         updatedAt: new Date(),
