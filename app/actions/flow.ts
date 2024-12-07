@@ -36,6 +36,11 @@ export async function getConversations() {
 
 export async function saveFlow(flowData: FlowData) {
   try {
+    // Check if the flow is empty (no nodes)
+    if (!flowData.nodes || flowData.nodes.length === 0) {
+      return { success: false, error: 'Cannot save empty flow' }
+    }
+
     const id = flowData.id || ulid()
 
     const conversation = await prisma.conversation.upsert({

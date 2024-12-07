@@ -131,6 +131,9 @@ function ChatNode({ data, id }: NodeProps) {
       data.updateNodeData(id, { input, response: aiResponse })
       setIsSubmitted(true)
       data.setHighlightInfo({ nodeIds: new Set(), edgeIds: new Set() })
+
+      // Auto-save after getting AI response
+      setTimeout(data.handleSaveFlow, 100)
     } catch (error) {
       toast({
         title: "Error",
@@ -389,6 +392,22 @@ export function EnhancedFlexibleChatFlowchartComponent() {
     [setEdges]
   )
 
+  const handleSaveFlow = useCallback(async () => {
+    try {
+      setSaveState('saving')
+      await saveFlowToDb(nodes, edges)
+      setSaveState('saved')
+    } catch (error) {
+      setSaveState('idle')
+      console.error('Auto-save error:', error)
+      toast({
+        title: "Auto-save Error",
+        description: error instanceof Error ? error.message : "Failed to auto-save flow",
+        variant: "destructive"
+      })
+    }
+  }, [nodes, edges])
+
   const onAdd = useCallback((parentId: string, initialInput: string = '') => {
     const newNodeId = ulid()
 
@@ -433,22 +452,8 @@ export function EnhancedFlexibleChatFlowchartComponent() {
 
     // Auto-save after adding the new node
     // We need to wait for the state updates to complete
-    setTimeout(async () => {
-      try {
-        setSaveState('saving')
-        await saveFlowToDb(nodes, edges)
-        setSaveState('saved')
-      } catch (error) {
-        setSaveState('idle')
-        console.error('Auto-save error:', error)
-        toast({
-          title: "Auto-save Error",
-          description: error instanceof Error ? error.message : "Failed to auto-save flow",
-          variant: "destructive"
-        })
-      }
-    }, 100)
-  }, [setNodes, setEdges, edges, nodes, saveFlowToDb]) // Added dependencies
+    setTimeout(handleSaveFlow, 100)
+  }, [setNodes, setEdges, edges, nodes, handleSaveFlow])
 
   const onDelete = useCallback((id: string) => {
     const deleteNodeAndChildren = (nodeId: string, currentNodes: Node[], currentEdges: Edge[]): { nodes: Node[], edges: Edge[] } => {
@@ -682,27 +687,6 @@ export function EnhancedFlexibleChatFlowchartComponent() {
     event.target.value = ''
   }, [importFlowFromJson, setNodes, setEdges, onAdd, onDelete, updateNodeData, setHighlightInfo, findParentChain, updateNodePositions])
 
-  const handleSaveFlow = async () => {
-    try {
-      setSaveState('saving')
-      const id = await saveFlowToDb(nodes, edges)
-
-      toast({
-        title: "Success",
-        description: conversationId
-          ? "Flow updated successfully"
-          : "Flow saved successfully",
-      })
-
-      setSaveState('saved')
-    } catch (error) {
-      setSaveState('idle')
-      toast({
-        title: "Error",
-        description: error instanceof Error ? error.message : "Failed to save flow",
-      })
-    }
-  }
 
   const loadConversation = useCallback(async (id: string) => {
     try {
@@ -824,7 +808,8 @@ export function EnhancedFlexibleChatFlowchartComponent() {
                 onDelete,
                 updateNodeData,
                 setHighlightInfo,
-                findParentChain
+                findParentChain,
+                handleSaveFlow
               },
               className: highlightInfo.nodeIds.has(node.id) ? 'highlight-node' : undefined
             }))}
