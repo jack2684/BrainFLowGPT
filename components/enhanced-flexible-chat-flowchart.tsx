@@ -623,7 +623,9 @@ export function EnhancedFlexibleChatFlowchartComponent() {
             setHighlightInfo,
             findParentChain,
             context: buildChatContext(flowData.nodes, flowData.edges, nodeId)
-          }
+          },
+          id: node.id,
+          position: node.position,
         })
 
         // Find and add child nodes
@@ -747,7 +749,9 @@ export function EnhancedFlexibleChatFlowchartComponent() {
             setHighlightInfo,
             findParentChain,
             context: buildChatContext(flowData.nodes, flowData.edges, nodeId)
-          }
+          },
+          id: node.id,
+          position: node.position,
         })
 
         // Find and add child nodes
