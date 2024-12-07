@@ -83,4 +83,19 @@ export async function getConversationFlow(id: string) {
     console.error('Error fetching conversation:', error)
     return { success: false, error: 'Failed to fetch conversation' }
   }
+}
+
+export async function deleteConversation(id: string) {
+  try {
+    await prisma.conversation.delete({
+      where: {
+        id: id,
+      },
+    })
+
+    return { success: true }
+  } catch (error) {
+    console.error('Error deleting conversation:', error)
+    return { success: false, error }
+  }
 } 
