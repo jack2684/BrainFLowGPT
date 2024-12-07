@@ -35,6 +35,7 @@ import { buildChatContext } from '@/lib/chat-context'
 import { ulid } from 'ulid'
 import { useChat } from '@/lib/hooks/useChat'
 import { saveFlow } from '@/app/actions/flow'
+import { ConversationList } from './conversation-list'
 
 const NODE_WIDTH = 500
 const GRID_SPACING_X = 512
@@ -676,144 +677,155 @@ export function EnhancedFlexibleChatFlowchartComponent() {
   }
 
   return (
-    <div className="w-full h-[66vh] rounded-lg my-10 shadow-lg">
-      <ReactFlow
-        ref={reactFlowInstance}
-        nodes={nodes.map((node) => ({
-          ...node,
-          draggable: false,
-          selectable: false,
-          data: {
-            ...node.data,
-            onAdd,
-            onDelete,
-            updateNodeData,
-            setHighlightInfo,
-            findParentChain
-          },
-          className: highlightInfo.nodeIds.has(node.id) ? 'highlight-node' : undefined
-        }))}
-        edges={edges.map(edge => ({
-          ...edge,
-          className: highlightInfo.edgeIds.has(edge.id) ? 'highlight-edge' : undefined
-        }))}
-        onInit={instance => reactFlowInstance.current = instance}
-        onNodesChange={onNodesChange}
-        onEdgesChange={onEdgesChange}
-        onConnect={onConnect}
-        nodeTypes={nodeTypes}
-        connectionMode={ConnectionMode.Loose}
-        fitView
-        fitViewOptions={{ maxZoom: 1 }}
-        minZoom={0.1}
-        maxZoom={4}
-        zoomOnScroll={false}
-        panOnScroll={true}
-        panOnScrollMode={PanOnScrollMode.Free}
-        selectNodesOnDrag={false}
-        preventScrolling={false}
-        zoomOnDoubleClick={false}
-        nodesDraggable={false}
-        nodesConnectable={false}
-        elementsSelectable={false}
-        panOnDrag={[1, 2]}
-        panActivationKeyCode={"Alt"}
-      >
-        <Background variant={BackgroundVariant.Dots} gap={12} size={1} />
-        <Controls />
-        <Panel position="top-right" className="flex gap-2">
-          {/* <Button
-            variant="outline"
-            size="sm"
-            onClick={() => reactFlowInstance.current?.fitView({
-              padding: 0.2,
-              maxZoom: 1,
-              duration: 800,
-              includeHiddenNodes: false
-            })}
-            className="flex items-center gap-2"
+    <div className="flex h-full">
+      <div className="flex-1">
+        <div className="w-full h-[66vh] rounded-lg my-10 shadow-lg">
+          <ReactFlow
+            ref={reactFlowInstance}
+            nodes={nodes.map((node) => ({
+              ...node,
+              draggable: false,
+              selectable: false,
+              data: {
+                ...node.data,
+                onAdd,
+                onDelete,
+                updateNodeData,
+                setHighlightInfo,
+                findParentChain
+              },
+              className: highlightInfo.nodeIds.has(node.id) ? 'highlight-node' : undefined
+            }))}
+            edges={edges.map(edge => ({
+              ...edge,
+              className: highlightInfo.edgeIds.has(edge.id) ? 'highlight-edge' : undefined
+            }))}
+            onInit={instance => reactFlowInstance.current = instance}
+            onNodesChange={onNodesChange}
+            onEdgesChange={onEdgesChange}
+            onConnect={onConnect}
+            nodeTypes={nodeTypes}
+            connectionMode={ConnectionMode.Loose}
+            fitView
+            fitViewOptions={{ maxZoom: 1 }}
+            minZoom={0.1}
+            maxZoom={4}
+            zoomOnScroll={false}
+            panOnScroll={true}
+            panOnScrollMode={PanOnScrollMode.Free}
+            selectNodesOnDrag={false}
+            preventScrolling={false}
+            zoomOnDoubleClick={false}
+            nodesDraggable={false}
+            nodesConnectable={false}
+            elementsSelectable={false}
+            panOnDrag={[1, 2]}
+            panActivationKeyCode={"Alt"}
           >
-            <Maximize2 className="h-4 w-4" />
-            Center View
-          </Button> */}
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={onDownloadImage}
-            className="flex items-center gap-2"
-          >
-            <Share className="h-4 w-4" />
-            Share as PNG
-          </Button>
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={handleSaveFlow}
-            className="flex items-center gap-2"
-          >
-            <CloudUpload className="h-4 w-4" />
-            Save Flow
-          </Button>
-          <div className="relative">
-            <input
-              type="file"
-              accept=".json"
-              onChange={handleImportFlow}
-              className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
-              title="Import Flow"
-            />
-            <Button
-              variant="outline"
-              size="sm"
-              className="flex items-center gap-2"
-            >
-              <Database className="h-4 w-4" />
-              Import Flow
-            </Button>
-          </div>
-        </Panel>
-        <style>
-          {`
-            .highlight-node {
-              border: 1px solid #ff9f82 !important;
-            }
-            .highlight-edge {
-              stroke: #ff0000 !important;
-              stroke-width: 2px !important;
-            }
+            <Background variant={BackgroundVariant.Dots} gap={12} size={1} />
+            <Controls />
+            <Panel position="top-right" className="flex gap-2">
+              {/* <Button
+                variant="outline"
+                size="sm"
+                onClick={() => reactFlowInstance.current?.fitView({
+                  padding: 0.2,
+                  maxZoom: 1,
+                  duration: 800,
+                  includeHiddenNodes: false
+                })}
+                className="flex items-center gap-2"
+              >
+                <Maximize2 className="h-4 w-4" />
+                Center View
+              </Button> */}
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={onDownloadImage}
+                className="flex items-center gap-2"
+              >
+                <Share className="h-4 w-4" />
+                Share as PNG
+              </Button>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={handleSaveFlow}
+                className="flex items-center gap-2"
+              >
+                <CloudUpload className="h-4 w-4" />
+                Save Flow
+              </Button>
+              <div className="relative">
+                <input
+                  type="file"
+                  accept=".json"
+                  onChange={handleImportFlow}
+                  className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+                  title="Import Flow"
+                />
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="flex items-center gap-2"
+                >
+                  <Database className="h-4 w-4" />
+                  Import Flow
+                </Button>
+              </div>
+            </Panel>
+            <style>
+              {`
+                .highlight-node {
+                  border: 1px solid #ff9f82 !important;
+                }
+                .highlight-edge {
+                  stroke: #ff0000 !important;
+                  stroke-width: 2px !important;
+                }
 
-            .react-flow__handle {
-              cursor: pointer !important;
-            }
+                .react-flow__handle {
+                  cursor: pointer !important;
+                }
 
-            .react-flow__pane {
-              pointer-events: none !important;
-            }
+                .react-flow__pane {
+                  pointer-events: none !important;
+                }
 
-            .react-flow__node {
-              pointer-events: all !important;
-              user-select: text !important;
-              cursor: grab !important;
-            }
+                .react-flow__node {
+                  pointer-events: all !important;
+                  user-select: text !important;
+                  cursor: grab !important;
+                }
 
-            .react-flow__node:active {
-              cursor: grabbing !important;
-            }
+                .react-flow__node:active {
+                  cursor: grabbing !important;
+                }
 
-            .react-flow__node .card-content {
-              cursor: default !important;
-            }
+                .react-flow__node .card-content {
+                  cursor: default !important;
+                }
 
-            .react-flow__node button {
-              cursor: pointer !important;
-            }
+                .react-flow__node button {
+                  cursor: pointer !important;
+                }
 
-            .react-flow__node .prose {
-              cursor: text !important;
-            }
-          `}
-        </style>
-      </ReactFlow>
+                .react-flow__node .prose {
+                  cursor: text !important;
+                }
+              `}
+            </style>
+          </ReactFlow>
+        </div>
+      </div>
+      <ConversationList
+        onSelect={(id) => {
+          // Implement loading the selected conversation
+          // You'll need to create a function to load the flow data
+          // and update the canvas
+        }}
+      />
     </div>
   )
 }

@@ -14,9 +14,28 @@ interface FlowData {
   }
 }
 
+export async function getConversations() {
+  try {
+    const conversations = await prisma.conversation.findMany({
+      orderBy: {
+        updatedAt: 'desc'
+      },
+      select: {
+        id: true,
+        title: true,
+
+        updatedAt: true
+      }
+    })
+    return { success: true, conversations }
+  } catch (error) {
+    console.error('Error fetching conversations:', error)
+    return { success: false, error: 'Failed to fetch conversations' }
+  }
+}
+
 export async function saveFlow(flowData: FlowData) {
   try {
-    // If flowData has an id, it's an update; otherwise, create new
     const id = flowData.id || ulid()
 
     const conversation = await prisma.conversation.upsert({
