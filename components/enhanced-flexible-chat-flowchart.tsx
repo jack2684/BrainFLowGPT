@@ -22,7 +22,7 @@ import ReactFlow, {
   ReactFlowInstance,
 } from 'reactflow'
 import 'reactflow/dist/style.css'
-import { PlusCircle, Trash2, Copy, Send, Download, Loader2, Share2, Save, Share, Cloud, CloudUpload, Database, Maximize2 } from 'lucide-react'
+import { PlusCircle, Trash2, Copy, Send, Download, Loader2, Share2, Save, Share, Cloud, CloudUpload, Database, Maximize2, History } from 'lucide-react'
 import { Textarea } from "@/components/ui/textarea"
 import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
@@ -380,6 +380,7 @@ export function EnhancedFlexibleChatFlowchartComponent() {
   const updateTimeoutRef = useRef<NodeJS.Timeout | null>(null)
   const { messages, isLoading, error, sendMessage, downloadChatAsJson, downloadFlowAsJson, importFlowFromJson, saveFlowToDb, conversationId } = useChat()
   const reactFlowInstance = useRef<ReactFlowInstance | null>(null);
+  const [showHistory, setShowHistory] = useState(false)
 
   const onConnect = useCallback(
     (params: Edge | Connection) => setEdges((eds) => addEdge({ ...params, animated: true }, eds)),
@@ -678,7 +679,7 @@ export function EnhancedFlexibleChatFlowchartComponent() {
 
   return (
     <div className="flex h-full">
-      <div className="flex-1">
+      <div className={`flex-1 ${showHistory ? 'border-r' : ''}`}>
         <div className="w-full h-[66vh] rounded-lg my-10 shadow-lg">
           <ReactFlow
             ref={reactFlowInstance}
@@ -725,20 +726,15 @@ export function EnhancedFlexibleChatFlowchartComponent() {
             <Background variant={BackgroundVariant.Dots} gap={12} size={1} />
             <Controls />
             <Panel position="top-right" className="flex gap-2">
-              {/* <Button
+              <Button
                 variant="outline"
                 size="sm"
-                onClick={() => reactFlowInstance.current?.fitView({
-                  padding: 0.2,
-                  maxZoom: 1,
-                  duration: 800,
-                  includeHiddenNodes: false
-                })}
+                onClick={() => setShowHistory(!showHistory)}
                 className="flex items-center gap-2"
               >
-                <Maximize2 className="h-4 w-4" />
-                Center View
-              </Button> */}
+                <History className="h-4 w-4" />
+                History
+              </Button>
               <Button
                 variant="outline"
                 size="sm"
@@ -819,13 +815,15 @@ export function EnhancedFlexibleChatFlowchartComponent() {
           </ReactFlow>
         </div>
       </div>
-      <ConversationList
-        onSelect={(id) => {
-          // Implement loading the selected conversation
-          // You'll need to create a function to load the flow data
-          // and update the canvas
-        }}
-      />
+      {showHistory && (
+        <ConversationList
+          onSelect={(id) => {
+            // Implement loading the selected conversation
+            setShowHistory(false)
+          }}
+          onClose={() => setShowHistory(false)}
+        />
+      )}
     </div>
   )
 }
