@@ -112,7 +112,7 @@ function ChatNode({ data, id }: NodeProps) {
   const [showCopyButton, setShowCopyButton] = useState(false)
   const [input, setInput] = useState(data.input)
   const [response, setResponse] = useState(data.response)
-  const [isSubmitted, setIsSubmitted] = useState(false) // Added new state variable
+  const [isSubmitted, setIsSubmitted] = useState(data?.response != null && data.response.trim() != '') // Added new state variable
   const [isLoading, setIsLoading] = useState(false)
   const nodeRef = useRef<HTMLDivElement>(null)
   const prevHeightRef = useRef<number>(data.height)
