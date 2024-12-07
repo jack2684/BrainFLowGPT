@@ -849,23 +849,6 @@ export function EnhancedFlexibleChatFlowchartComponent() {
                 <CloudUpload className="h-4 w-4" />
                 Save Flow
               </Button>
-              <div className="relative">
-                <input
-                  type="file"
-                  accept=".json"
-                  onChange={handleImportFlow}
-                  className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
-                  title="Import Flow"
-                />
-                <Button
-                  variant="outline"
-                  size="sm"
-                  className="flex items-center gap-2"
-                >
-                  <Database className="h-4 w-4" />
-                  Import Flow
-                </Button>
-              </div>
             </Panel>
             <style>
               {`
