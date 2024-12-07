@@ -22,7 +22,7 @@ import ReactFlow, {
   ReactFlowInstance,
 } from 'reactflow'
 import 'reactflow/dist/style.css'
-import { PlusCircle, Trash2, Copy, Send, Download, Loader2, Share2, Save, Share, Cloud, CloudUpload, Database, Maximize2, History } from 'lucide-react'
+import { PlusCircle, Trash2, Copy, Send, Download, Loader2, Share2, Save, Share, Cloud, CloudUpload, Database, Maximize2, History, Check } from 'lucide-react'
 import { Textarea } from "@/components/ui/textarea"
 import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
@@ -382,6 +382,7 @@ export function EnhancedFlexibleChatFlowchartComponent() {
   const { messages, isLoading, error, sendMessage, downloadChatAsJson, downloadFlowAsJson, importFlowFromJson, saveFlowToDb, conversationId } = useChat()
   const reactFlowInstance = useRef<ReactFlowInstance | null>(null);
   const [showHistory, setShowHistory] = useState(false)
+  const [saveState, setSaveState] = useState<'idle' | 'saving' | 'saved'>('idle')
 
   const onConnect = useCallback(
     (params: Edge | Connection) => setEdges((eds) => addEdge({ ...params, animated: true }, eds)),
@@ -663,14 +664,19 @@ export function EnhancedFlexibleChatFlowchartComponent() {
 
   const handleSaveFlow = async () => {
     try {
+      setSaveState('saving')
       const id = await saveFlowToDb(nodes, edges)
+
       toast({
         title: "Success",
         description: conversationId
           ? "Flow updated successfully"
           : "Flow saved successfully",
       })
+
+      setSaveState('saved')
     } catch (error) {
+      setSaveState('idle')
       toast({
         title: "Error",
         description: error instanceof Error ? error.message : "Failed to save flow",
@@ -773,6 +779,13 @@ export function EnhancedFlexibleChatFlowchartComponent() {
     }
   }, [setNodes, setEdges, onAdd, onDelete, updateNodeData, setHighlightInfo, findParentChain, updateNodePositions])
 
+  useEffect(() => {
+    // If we're in 'saved' state and nodes change, switch back to 'idle'
+    if (saveState === 'saved') {
+      setSaveState('idle')
+    }
+  }, [nodes, edges]) // Watch both nodes and edges for changes
+
   return (
     <div className="flex h-full">
       <div className={`flex-1 ${showHistory ? 'border-r' : ''}`}>
@@ -844,10 +857,25 @@ export function EnhancedFlexibleChatFlowchartComponent() {
                 variant="outline"
                 size="sm"
                 onClick={handleSaveFlow}
-                className="flex items-center gap-2"
+                disabled={saveState === 'saving' || saveState === 'saved'}
+                className="flex items-center gap-2 min-w-[100px] justify-center"
               >
-                <CloudUpload className="h-4 w-4" />
-                Save Flow
+                {saveState === 'saving' ? (
+                  <>
+                    <Loader2 className="h-4 w-4 animate-spin" />
+                    Saving...
+                  </>
+                ) : saveState === 'saved' ? (
+                  <>
+                    <Check className="h-4 w-4 text-green-500" />
+                    Saved
+                  </>
+                ) : (
+                  <>
+                    <CloudUpload className="h-4 w-4" />
+                    Save Flow
+                  </>
+                )}
               </Button>
             </Panel>
             <style>
