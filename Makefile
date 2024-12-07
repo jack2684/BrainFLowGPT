@@ -17,6 +17,8 @@ setup:
 
 # Execute all migration files in order
 db-migrations:
+	$(eval include .env)
+	$(eval export)
 	@echo "Executing database migrations..."
 	@if [ ! -d "prisma/migrations" ]; then mkdir -p prisma/migrations; fi
 	@for file in prisma/migrations/*.sql; do \
