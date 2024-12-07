@@ -1,7 +1,3 @@
-# Load environment variables from .env file
-include .env
-export
-
 .PHONY: dev setup db-push db-studio supabase-migration supabase-push supabase-generate db-migrations
 
 install:
