@@ -36,6 +36,7 @@ import { ulid } from 'ulid'
 import { useChat } from '@/lib/hooks/useChat'
 import { saveFlow } from '@/app/actions/flow'
 import { ConversationList } from './conversation-list'
+import { getConversationFlow } from '@/app/actions/flow'
 
 const NODE_WIDTH = 500
 const GRID_SPACING_X = 512
@@ -677,6 +678,101 @@ export function EnhancedFlexibleChatFlowchartComponent() {
     }
   }
 
+  const loadConversation = useCallback(async (id: string) => {
+    try {
+      const result = await getConversationFlow(id)
+
+      if (!result.success || !result.conversation) {
+        toast({
+          title: "Error",
+          description: "Failed to load conversation",
+        })
+        return
+      }
+
+      const flowData = result.conversation.flowData as any
+
+      // Create temporary arrays to build the complete flow
+      let newNodes: Node[] = []
+      let newEdges: Edge[] = []
+
+      // Create a map for quick node lookup
+      const nodeMap = new Map(flowData.nodes.map((node: Node) => [node.id, node]))
+
+      // Find root node (usually '0')
+      const rootNode = flowData.nodes.find((node: Node) => node.id === '0') || flowData.nodes[0]
+      if (!rootNode) throw new Error('No root node found')
+
+      // Function to recursively add nodes and their children
+      const addNodeAndChildren = (nodeId: string, processedNodes = new Set<string>()) => {
+        if (processedNodes.has(nodeId)) return
+        processedNodes.add(nodeId)
+
+        const node = nodeMap.get(nodeId)
+        if (!node) return
+
+        // Add the current node to temporary array
+        newNodes.push({
+          ...node,
+          type: 'chatNode',
+          data: {
+            ...node.data,
+            onAdd,
+            onDelete,
+            updateNodeData,
+            setHighlightInfo,
+            findParentChain,
+            context: buildChatContext(flowData.nodes, flowData.edges, nodeId)
+          }
+        })
+
+        // Find and add child nodes
+        const childEdges = flowData.edges.filter((edge: Edge) => edge.source === nodeId)
+        childEdges.forEach((edge: Edge) => {
+          newEdges.push({
+            ...edge,
+            type: 'smoothstep',
+            animated: true
+          })
+          addNodeAndChildren(edge.target, processedNodes)
+        })
+      }
+
+      // Build complete arrays first
+      addNodeAndChildren(rootNode.id)
+
+      // Set state with complete data
+      setNodes(newNodes)
+      setEdges(newEdges)
+
+      // Update positions
+      updateRequiredRef.current = true
+      updateNodePositions()
+
+      // Fit view after a short delay
+      setTimeout(() => {
+        if (reactFlowInstance.current) {
+          reactFlowInstance.current.fitView({
+            padding: 0.2,
+            maxZoom: 1,
+            duration: 800,
+          })
+        }
+      }, 100)
+
+      toast({
+        title: "Success",
+        description: "Conversation loaded successfully",
+      })
+    } catch (error) {
+      console.error('Load error:', error)
+      toast({
+        title: "Error",
+        description: "Failed to load conversation",
+      })
+    }
+  }, [setNodes, setEdges, onAdd, onDelete, updateNodeData, setHighlightInfo, findParentChain, updateNodePositions])
+
   return (
     <div className="flex h-full">
       <div className={`flex-1 ${showHistory ? 'border-r' : ''}`}>
@@ -818,8 +914,8 @@ export function EnhancedFlexibleChatFlowchartComponent() {
       {showHistory && (
         <ConversationList
           onSelect={(id) => {
-            // Implement loading the selected conversation
-            setShowHistory(false)
+            loadConversation(id)
+            // Note: We're not closing the history panel anymore
           }}
           onClose={() => setShowHistory(false)}
         />

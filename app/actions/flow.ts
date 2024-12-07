@@ -59,4 +59,28 @@ export async function saveFlow(flowData: FlowData) {
     console.error('Error saving flow:', error)
     return { success: false, error: 'Failed to save flow' }
   }
+}
+
+export async function getConversationFlow(id: string) {
+  try {
+    const conversation = await prisma.conversation.findUnique({
+      where: {
+        id: id,
+      },
+      select: {
+        id: true,
+        flowData: true,
+        title: true,
+      }
+    })
+
+    if (!conversation) {
+      return { success: false, error: 'Conversation not found' }
+    }
+
+    return { success: true, conversation }
+  } catch (error) {
+    console.error('Error fetching conversation:', error)
+    return { success: false, error: 'Failed to fetch conversation' }
+  }
 } 
