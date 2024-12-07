@@ -25,12 +25,13 @@ export async function saveFlow(flowData: FlowData) {
       },
       update: {
         flowData: flowData,
+        title: flowData.nodes[1]?.data?.input?.slice(0, 50) || '[Empty Flow]',
         updatedAt: new Date(),
       },
       create: {
         id: id,
         flowData: flowData,
-        title: 'Untitled Flow',
+        title: flowData.nodes[1]?.data?.input?.slice(0, 50) || '[Empty Flow]',
       },
     })
 
