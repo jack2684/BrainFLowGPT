@@ -7,19 +7,6 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-model Profile {
-  id         String    @id @default(uuid())
-  userId     String    @unique // maps to auth.users.id
-  username   String    @unique
-  fullName   String?
-  avatarUrl  String?
-  website    String?
-  updatedAt  DateTime  @updatedAt
-  createdAt  DateTime  @default(now())
-
-  @@map("profiles")
-}
-
 model Session {
   id            String    @id
   user_id       String
@@ -36,10 +23,13 @@ model Session {
 
 model User {
   id         String    @id @default(uuid())
-  email      String    @unique
-  created_at DateTime  @default(now())
-  updated_at DateTime  @updatedAt
-  sessions   Session[]
+  userId     String    @unique // maps to auth.users.id
+  username   String    @unique
+  fullName   String?
+  avatarUrl  String?
+  website    String?
+  updatedAt  DateTime  @updatedAt
+  createdAt  DateTime  @default(now())
 
   @@map("auth.users")
 }
