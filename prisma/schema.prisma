@@ -22,14 +22,16 @@ model Session {
 }
 
 model User {
-  id         String   @id @default(uuid())
-  user_id    String   @unique
-  username   String   @unique
-  full_name  String?
-  avatar_url String?
-  website    String?
-  updated_at DateTime @updatedAt
-  created_at DateTime @default(now())
+  id           String         @id @default(uuid())
+  user_id      String         @unique
+  username     String         @unique
+  full_name    String?
+  avatar_url   String?
+  website      String?
+  updated_at   DateTime       @updatedAt
+  created_at   DateTime       @default(now())
+  Session      Session[]
+  Conversation Conversation[]
 
   @@map("auth.users")
 }
@@ -43,9 +45,10 @@ model Conversation {
   updated_at DateTime @updatedAt
   user       User     @relation(fields: [user_id], references: [id])
 
-  @@map("conversations")
   @@index([user_id])
   @@index([created_at])
+  
+  @@map("conversations")
 }
 
 // You can add more models here as needed
