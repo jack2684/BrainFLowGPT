@@ -22,7 +22,7 @@ import ReactFlow, {
   ReactFlowInstance,
 } from 'reactflow'
 import 'reactflow/dist/style.css'
-import { PlusCircle, Trash2, Copy, Send, Download, Loader2, Share2, Save, Share, Cloud, CloudUpload, Database, Maximize2, History, Check } from 'lucide-react'
+import { PlusCircle, Trash2, Copy, Send, Loader2, Share, CloudUpload, History, Check } from 'lucide-react'
 import { Textarea } from "@/components/ui/textarea"
 import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
@@ -30,11 +30,10 @@ import { toast } from "@/components/ui/use-toast"
 import { getAIResponse } from '@/app/actions/chat'
 import { toPng } from 'html-to-image'
 import ReactMarkdown from 'react-markdown'
-import { NodeData, ChatMessage, TreeNode } from '@/types/chat'
+import { TreeNode } from '@/types/chat'
 import { buildChatContext } from '@/lib/chat-context'
 import { ulid } from 'ulid'
 import { useChat } from '@/lib/hooks/useChat'
-import { saveFlow } from '@/app/actions/flow'
 import { ConversationList } from './conversation-list'
 import { getConversationFlow } from '@/app/actions/flow'
 

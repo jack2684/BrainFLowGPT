@@ -29,7 +29,7 @@ export async function getConversations() {
 }
 
 export async function saveFlow(flowData: FlowData) {
-  if (!flowData.nodes || flowData.nodes.length === 0) {
+  if (!flowData.nodes || flowData.nodes.length === 0 || !flowData.edges || flowData.edges.length === 0) {
     return { success: false, error: 'Cannot save empty flow' }
   }
 
