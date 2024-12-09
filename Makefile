@@ -11,14 +11,12 @@ setup:
 	pnpm install
 	supabase init --force
 	supabase start || (supabase stop && supabase start)
-	make db-migrations
-	pnpm run prisma:generate
+	npx prisma migrate dev 
 	pnpm run prisma:push
 # Execute all migration files in order
 db-migrations:
 	npx prisma migrate dev 
-	npx prisma generate
-	npx prisma db seed
+	pnpm run prisma:generate
 
 db-push:
 	npx prisma db push
