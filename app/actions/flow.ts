@@ -3,7 +3,7 @@
 import { prisma } from '@/lib/db'
 import { ulid } from 'ulid'
 
-interface FlowData {
+interface FlowData extends Record<string, any> {
   id?: string;
   nodes: any[];
   edges: any[];
@@ -29,7 +29,6 @@ export async function getConversations() {
 }
 
 export async function saveFlow(flowData: FlowData) {
-  // Check if the flow is empty (no nodes)
   if (!flowData.nodes || flowData.nodes.length === 0) {
     return { success: false, error: 'Cannot save empty flow' }
   }
@@ -42,14 +41,16 @@ export async function saveFlow(flowData: FlowData) {
     },
     update: {
       id: id,
-      flow_data: flowData,
+      flowData: flowData,
       title: flowData.nodes[1]?.data?.input?.slice(0, 50) || '[Empty Flow]',
       updatedAt: new Date(),
+      userId: 'anonymous'
     },
     create: {
       id: id,
-      flow_data: flowData,
+      flowData: flowData,
       title: flowData.nodes[1]?.data?.input?.slice(0, 50) || '[Empty Flow]',
+      userId: 'anonymous'
     },
   })
 
@@ -63,7 +64,7 @@ export async function getConversationFlow(id: string) {
     },
     select: {
       id: true,
-      flow_data: true,
+      flowData: true,
       title: true,
     }
   })
