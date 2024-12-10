@@ -1,5 +1,6 @@
 'use client'
 
+import { signIn, signOut, useSession } from 'next-auth/react'
 import { useState } from 'react'
 import { createPortal } from 'react-dom'
 import { useAuth } from './AuthContext'
@@ -97,15 +98,11 @@ const AuthModal = ({
 )
 
 export function AuthButton({ mode }: AuthButtonProps) {
-  const { user, signIn, signUp, signOut } = useAuth()
+  const { user, signUp } = useAuth()
+  const { data: session } = useSession()
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [showModal, setShowModal] = useState(false)
-
-  if (!signUp || !signIn || !signOut) {
-    console.error('Auth functions not properly initialized:', { signUp, signIn, signOut })
-    return null
-  }
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -113,15 +110,23 @@ export function AuthButton({ mode }: AuthButtonProps) {
       if (mode === 'sign-up') {
         await signUp(email, password)
       } else {
-        await signIn(email, password)
+        const result = await signIn('credentials', {
+          email,
+          password,
+          redirect: false,
+        })
+        if (result?.error) {
+          console.error('Sign in error:', result.error)
+        } else {
+          setShowModal(false)
+        }
       }
-      setShowModal(false)
     } catch (error) {
       console.error('Auth error:', error)
     }
   }
 
-  if (user) {
+  if (session?.user) {
     return (
       <button
         onClick={() => signOut()}
