@@ -5,16 +5,8 @@ import { supabase } from '@/lib/supabase'
 import { Session } from "next-auth"
 import pino from 'pino'
 
-// Initialize the logger
-const logger = pino({
-  transport: {
-    target: 'pino-pretty',
-    options: {
-      colorize: true,
-      ignore: 'pid,hostname',
-    },
-  },
-})
+// Update the logger configuration to use a simpler setup
+const logger = pino()
 
 export const authOptions: AuthOptions = {
   providers: [
@@ -36,12 +28,12 @@ export const authOptions: AuthOptions = {
           })
 
           if (error) {
-            logger.error({ error }, 'Supabase auth error')
+            // logger.error({ error }, 'Supabase auth error')
             return null
           }
 
           if (user) {
-            logger.info({ user }, 'User successfully authenticated')
+            // logger.info({ user }, 'User successfully authenticated')
             return {
               id: user.id,
               email: user.email,
@@ -51,7 +43,7 @@ export const authOptions: AuthOptions = {
 
           return null
         } catch (error) {
-          logger.error({ error }, 'Auth error')
+          // logger.error({ error }, 'Auth error')
           console.error("Auth error:", error)
           return null
         }
@@ -66,20 +58,20 @@ export const authOptions: AuthOptions = {
         token.refreshToken = session?.refresh_token
         token.id = user.id
       }
-      logger.info({ token }, 'JWT token created/updated')
+      // logger.info({ token }, 'JWT token created/updated')
       return token
     },
     async session({ session, token }): Promise<Session> {
       if (session.user) {
         session.user.id = token.id as string
       }
-      logger.info({ session }, 'Session created/updated')
+      // logger.info({ session }, 'Session created/updated')
       return session
     },
   },
   events: {
     async signOut({ token }) {
-      logger.info({ token }, 'Signing out user')
+      // logger.info({ token }, 'Signing out user')
       await supabase.auth.signOut()
     },
   },
