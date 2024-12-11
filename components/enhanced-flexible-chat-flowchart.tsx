@@ -403,24 +403,7 @@ export function EnhancedFlexibleChatFlowchartComponent() {
   const [isFullscreen, setIsFullscreen] = useState(false);
 
   const toggleFullscreen = useCallback(() => {
-    const flowContainer = document.getElementById('flow-container');
-    if (!document.fullscreenElement && flowContainer) {
-      flowContainer.requestFullscreen();
-      setIsFullscreen(true);
-    } else {
-      document.exitFullscreen();
-      setIsFullscreen(false);
-    }
-  }, []);
-
-  // Add fullscreen change event listener
-  useEffect(() => {
-    const handleFullscreenChange = () => {
-      setIsFullscreen(!!document.fullscreenElement);
-    };
-
-    document.addEventListener('fullscreenchange', handleFullscreenChange);
-    return () => document.removeEventListener('fullscreenchange', handleFullscreenChange);
+    setIsFullscreen(prev => !prev);
   }, []);
 
   const onConnect = useCallback(
@@ -849,10 +832,12 @@ export function EnhancedFlexibleChatFlowchartComponent() {
     <div className="flex h-full">
       <div
         id="flow-container"
-        className={`flex-1 ${showHistory ? 'border-r' : ''} ${isFullscreen ? 'fixed inset-0 bg-white z-50' : ''
+        className={`flex-1 ${showHistory ? 'border-r' : ''} ${isFullscreen ? 'fixed inset-0 bg-white z-50 p-4' : ''
           }`}
       >
-        <div className={`${isFullscreen ? 'h-screen w-screen' : 'w-full h-[66vh] rounded-lg my-10'
+        <div className={`${isFullscreen
+            ? 'h-[calc(100vh-2rem)] w-full'
+            : 'w-full h-[66vh] rounded-lg my-10'
           } shadow-lg relative`}>
           <ReactFlow
             ref={reactFlowInstance}
@@ -911,7 +896,7 @@ export function EnhancedFlexibleChatFlowchartComponent() {
                 ) : (
                   <Maximize2 className="h-4 w-4" />
                 )}
-                {isFullscreen ? 'Exit' : 'Fullscreen'}
+                {isFullscreen ? 'Exit' : 'Maximize'}
               </Button>
               {!isFullscreen && (
                 <>
