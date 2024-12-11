@@ -33,7 +33,7 @@ export const authOptions: AuthOptions = {
           }
 
           if (user) {
-            logger.info({ user }, 'User successfully authenticated')
+            logger.debug({ user }, 'User successfully authenticated')
             return {
               id: user.id,
               email: user.email,
@@ -58,20 +58,20 @@ export const authOptions: AuthOptions = {
         token.refreshToken = session?.refresh_token
         token.id = user.id
       }
-      logger.info({ token }, 'JWT token created/updated')
+      logger.debug({ token }, 'JWT token created/updated')
       return token
     },
     async session({ session, token }): Promise<Session> {
       if (session.user) {
         session.user.id = token.id as string
       }
-      logger.info({ session }, 'Session created/updated')
+      logger.debug({ session }, 'Session created/updated')
       return session
     },
   },
   events: {
     async signOut({ token }) {
-      logger.info({ token }, 'Signing out user')
+      logger.debug({ token }, 'Signing out user')
       await supabase.auth.signOut()
     },
   },

@@ -5,6 +5,7 @@ import { useAuth } from '@/components/AuthContext'
 
 export function Navigation() {
   const { user } = useAuth()
+  console.log('Navigation render, user:', user)
 
   const scrollToSection = (id: string) => {
     const element = document.getElementById(id)
