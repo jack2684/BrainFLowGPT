@@ -432,7 +432,7 @@ export function EnhancedFlexibleChatFlowchartComponent() {
       setRefreshTrigger(prev => prev + 1)
     } catch (error) {
       setSaveState('idle')
-      console.error('Auto-save error:', error)
+      console.warn('Auto-save error:', error)
       toast({
         title: "Auto-save Error",
         description: error instanceof Error ? error.message : "Failed to auto-save flow",

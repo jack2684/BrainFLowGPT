@@ -216,7 +216,7 @@ export function useChat() {
 
       return result.id
     } catch (err) {
-      console.error('Error saving flow:', err)
+      console.warn('Error saving flow:', err)
       throw new Error('Failed to save flow to database')
     }
   }, [conversationId])
