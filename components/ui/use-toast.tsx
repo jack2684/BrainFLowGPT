@@ -1,3 +1,5 @@
+'use client'
+
 import * as React from "react"
 import * as ToastPrimitives from "@radix-ui/react-toast"
 import { cn } from "@/lib/utils"
@@ -70,11 +72,19 @@ export type ToastOptions = {
 }
 
 const toastStore = {
-  toasts: new Set<ToastOptions>(),
+  toasts: new Set<ToastOptions & { id: string }>(),
   listeners: new Set<() => void>(),
   notify: (options: ToastOptions) => {
-    toastStore.toasts.add(options)
+    const id = Math.random().toString(36).slice(2)
+    const toast = { ...options, id }
+    toastStore.toasts.add(toast)
     toastStore.listeners.forEach((listener) => listener())
+
+    // Automatically remove toast after 5 seconds
+    setTimeout(() => {
+      toastStore.toasts.delete(toast)
+      toastStore.listeners.forEach((listener) => listener())
+    }, 5000)
   },
 }
 
@@ -83,7 +93,7 @@ export function toast(opts: ToastOptions) {
 }
 
 export function Toaster() {
-  const [toasts, setToasts] = React.useState<ToastOptions[]>([])
+  const [toasts, setToasts] = React.useState<(ToastOptions & { id: string })[]>([])
 
   React.useEffect(() => {
     const listener = () => {
@@ -97,8 +107,8 @@ export function Toaster() {
 
   return (
     <ToastProvider>
-      {toasts.map((toast, index) => (
-        <Toast key={index}>
+      {toasts.map((toast) => (
+        <Toast key={toast.id}>
           {toast.title && <ToastTitle>{toast.title}</ToastTitle>}
           {toast.description && (
             <ToastDescription>{toast.description}</ToastDescription>

@@ -434,9 +434,8 @@ export function EnhancedFlexibleChatFlowchartComponent() {
       setSaveState('idle')
       console.warn('Auto-save error:', error)
       toast({
-        title: "Auto-save Error",
-        description: error instanceof Error ? error.message : "Failed to auto-save flow",
-        variant: "destructive"
+        title: "Error",
+        description: "Failed to auto-save flow",
       })
     }
   }, [nodes, edges])
@@ -712,7 +711,6 @@ export function EnhancedFlexibleChatFlowchartComponent() {
       toast({
         title: "Error",
         description: error instanceof Error ? error.message : "Failed to import flow",
-        variant: "destructive"
       })
     }
 
