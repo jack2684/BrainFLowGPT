@@ -1,7 +1,9 @@
 'use server'
 
 import { prisma } from '@/lib/db'
+import pino from 'pino';
 import { ulid } from 'ulid'
+const logger = pino()
 
 interface FlowData extends Record<string, any> {
   id?: string;
@@ -29,9 +31,12 @@ export async function getConversations() {
 }
 
 export async function saveFlow(flowData: FlowData) {
-  if (!flowData.nodes || flowData.nodes.length === 0 || !flowData.edges || flowData.edges.length === 0) {
+  const flowTitle = flowData.nodes[1]?.data?.input?.slice(0, 50);
+  if (!flowData.nodes || flowData.nodes.length === 0 || !flowTitle || flowTitle.length === 0) {
     return { success: false, error: 'Cannot save empty flow' }
   }
+
+  logger.info(`the name to save is: ${flowTitle}`)
 
   const id = flowData.id || ulid()
 
@@ -42,14 +47,14 @@ export async function saveFlow(flowData: FlowData) {
     update: {
       id: id,
       flowData: flowData,
-      title: flowData.nodes[1]?.data?.input?.slice(0, 50) || '[Empty Flow]',
+      title: flowTitle || '[Empty Flow]',
       updatedAt: new Date(),
       userId: 'anonymous'
     },
     create: {
       id: id,
       flowData: flowData,
-      title: flowData.nodes[1]?.data?.input?.slice(0, 50) || '[Empty Flow]',
+      title: flowTitle || '[Empty Flow]',
       userId: 'anonymous'
     },
   })

@@ -201,7 +201,10 @@ export function useChat() {
         }
       }
 
-      const result = await saveFlow(flowData)
+      const result = await saveFlow({
+        ...flowData,
+        id: flowData.id || undefined
+      })
 
       if (!result.success) {
         throw new Error(result.error)

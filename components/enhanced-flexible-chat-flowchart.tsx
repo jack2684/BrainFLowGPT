@@ -117,6 +117,7 @@ function ChatNode({ data, id }: NodeProps) {
   const prevHeightRef = useRef<number>(data.height)
   const [boldTexts, setBoldTexts] = useState<string[]>([])
   const textareaRef = useRef<HTMLTextAreaElement>(null)
+  const latestNodeDataRef = useRef<any>(null);
 
   const handleAdd = () => {
     data.onAdd(id)
@@ -126,13 +127,26 @@ function ChatNode({ data, id }: NodeProps) {
     try {
       setIsLoading(true)
       const aiResponse = await getAIResponse(input, data.context)
-      setResponse(aiResponse)
-      data.updateNodeData(id, { input, response: aiResponse })
-      setIsSubmitted(true)
-      data.setHighlightInfo({ nodeIds: new Set(), edgeIds: new Set() })
 
-      // Auto-save after getting AI response
-      setTimeout(data.handleSaveFlow, 100)
+      // Store the latest data in the ref
+      latestNodeDataRef.current = {
+        nodeId: id,
+        input,
+        response: aiResponse,
+        context: data.context
+      }
+
+      // Update local state
+      setResponse(aiResponse)
+      setIsSubmitted(true)
+
+      // Update node data
+      data.updateNodeData(id, latestNodeDataRef.current)
+
+      // Pass the ref's current value to handleSaveFlow
+      await data.handleSaveFlow(() => latestNodeDataRef.current)
+
+      data.setHighlightInfo({ nodeIds: new Set(), edgeIds: new Set() })
     } catch (error) {
       toast({
         title: "Error",
@@ -392,10 +406,28 @@ export function EnhancedFlexibleChatFlowchartComponent() {
     [setEdges]
   )
 
-  const handleSaveFlow = useCallback(async () => {
+  const handleSaveFlow = useCallback(async (getLatestData?: () => any) => {
     try {
       setSaveState('saving')
-      await saveFlowToDb(nodes, edges)
+
+      // If we have a function to get latest data, use it
+      const latestData = getLatestData?.()
+      const currentNodes = latestData ? nodes.map(node => {
+        if (node.id === latestData.nodeId) {
+          return {
+            ...node,
+            data: {
+              ...node.data,
+              input: latestData.input,
+              response: latestData.response,
+              context: latestData.context
+            }
+          }
+        }
+        return node
+      }) : nodes
+
+      await saveFlowToDb(currentNodes, edges)
       setSaveState('saved')
       setRefreshTrigger(prev => prev + 1)
     } catch (error) {
