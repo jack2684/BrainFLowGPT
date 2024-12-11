@@ -22,7 +22,7 @@ import ReactFlow, {
   ReactFlowInstance,
 } from 'reactflow'
 import 'reactflow/dist/style.css'
-import { PlusCircle, Trash2, Copy, Send, Loader2, Share, CloudUpload, History, Check } from 'lucide-react'
+import { PlusCircle, Trash2, Copy, Send, Loader2, Share, CloudUpload, History, Check, Maximize2, Minimize2 } from 'lucide-react'
 import { Textarea } from "@/components/ui/textarea"
 import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
@@ -400,6 +400,28 @@ export function EnhancedFlexibleChatFlowchartComponent() {
   const [showHistory, setShowHistory] = useState(false)
   const [saveState, setSaveState] = useState<'idle' | 'saving' | 'saved'>('idle')
   const [refreshTrigger, setRefreshTrigger] = useState(0)
+  const [isFullscreen, setIsFullscreen] = useState(false);
+
+  const toggleFullscreen = useCallback(() => {
+    const flowContainer = document.getElementById('flow-container');
+    if (!document.fullscreenElement && flowContainer) {
+      flowContainer.requestFullscreen();
+      setIsFullscreen(true);
+    } else {
+      document.exitFullscreen();
+      setIsFullscreen(false);
+    }
+  }, []);
+
+  // Add fullscreen change event listener
+  useEffect(() => {
+    const handleFullscreenChange = () => {
+      setIsFullscreen(!!document.fullscreenElement);
+    };
+
+    document.addEventListener('fullscreenchange', handleFullscreenChange);
+    return () => document.removeEventListener('fullscreenchange', handleFullscreenChange);
+  }, []);
 
   const onConnect = useCallback(
     (params: Edge | Connection) => setEdges((eds) => addEdge({ ...params, animated: true }, eds)),
@@ -825,8 +847,13 @@ export function EnhancedFlexibleChatFlowchartComponent() {
 
   return (
     <div className="flex h-full">
-      <div className={`flex-1 ${showHistory ? 'border-r' : ''}`}>
-        <div className="w-full h-[66vh] rounded-lg my-10 shadow-lg">
+      <div
+        id="flow-container"
+        className={`flex-1 ${showHistory ? 'border-r' : ''} ${isFullscreen ? 'fixed inset-0 bg-white z-50' : ''
+          }`}
+      >
+        <div className={`${isFullscreen ? 'h-screen w-screen' : 'w-full h-[66vh] rounded-lg my-10'
+          } shadow-lg relative`}>
           <ReactFlow
             ref={reactFlowInstance}
             nodes={nodes.map((node) => ({
@@ -876,48 +903,76 @@ export function EnhancedFlexibleChatFlowchartComponent() {
               <Button
                 variant="outline"
                 size="sm"
-                onClick={() => setShowHistory(!showHistory)}
+                onClick={toggleFullscreen}
                 className="flex items-center gap-2"
               >
-                <History className="h-4 w-4" />
-                History
-              </Button>
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={onDownloadImage}
-                className="flex items-center gap-2"
-              >
-                <Share className="h-4 w-4" />
-                Share as PNG
-              </Button>
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={handleSaveFlow}
-                disabled={saveState === 'saving' || saveState === 'saved'}
-                className="flex items-center gap-2 min-w-[100px] justify-center"
-              >
-                {saveState === 'saving' ? (
-                  <>
-                    <Loader2 className="h-4 w-4 animate-spin" />
-                    Saving...
-                  </>
-                ) : saveState === 'saved' ? (
-                  <>
-                    <Check className="h-4 w-4 text-green-500" />
-                    Saved
-                  </>
+                {isFullscreen ? (
+                  <Minimize2 className="h-4 w-4" />
                 ) : (
-                  <>
-                    <CloudUpload className="h-4 w-4" />
-                    Save Flow
-                  </>
+                  <Maximize2 className="h-4 w-4" />
                 )}
+                {isFullscreen ? 'Exit' : 'Fullscreen'}
               </Button>
+              {!isFullscreen && (
+                <>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => setShowHistory(!showHistory)}
+                    className="flex items-center gap-2"
+                  >
+                    <History className="h-4 w-4" />
+                    History
+                  </Button>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={onDownloadImage}
+                    className="flex items-center gap-2"
+                  >
+                    <Share className="h-4 w-4" />
+                    Share as PNG
+                  </Button>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={(e) => {
+                      e.preventDefault();
+                      handleSaveFlow();
+                    }}
+                    disabled={saveState === 'saving' || saveState === 'saved'}
+                    className="flex items-center gap-2 min-w-[100px] justify-center"
+                  >
+                    {saveState === 'saving' ? (
+                      <>
+                        <Loader2 className="h-4 w-4 animate-spin" />
+                        Saving...
+                      </>
+                    ) : saveState === 'saved' ? (
+                      <>
+                        <Check className="h-4 w-4 text-green-500" />
+                        Saved
+                      </>
+                    ) : (
+                      <>
+                        <CloudUpload className="h-4 w-4" />
+                        Save Flow
+                      </>
+                    )}
+                  </Button>
+                </>
+              )}
             </Panel>
             <style>
               {`
+                ${isFullscreen ? `
+                  .react-flow__controls {
+                    margin: 10px;
+                  }
+                  .react-flow__panel {
+                    margin: 10px;
+                  }
+                ` : ''}
                 .highlight-node {
                   border: 1px solid #ff9f82 !important;
                 }
@@ -960,7 +1015,7 @@ export function EnhancedFlexibleChatFlowchartComponent() {
           </ReactFlow>
         </div>
       </div>
-      {showHistory && (
+      {showHistory && !isFullscreen && (
         <ConversationList
           onSelect={(id) => {
             loadConversation(id)
