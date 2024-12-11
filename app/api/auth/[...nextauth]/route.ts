@@ -1,6 +1,8 @@
 import NextAuth from "next-auth"
 import CredentialsProvider from "next-auth/providers/credentials"
 import { AuthOptions } from "next-auth"
+import { supabase } from '@/lib/supabase'
+import { Session } from "next-auth"
 
 export const authOptions: AuthOptions = {
   providers: [
@@ -16,16 +18,24 @@ export const authOptions: AuthOptions = {
         }
 
         try {
-          // Here you would typically validate against your database
-          // For now, we'll use a simple example
-          // Replace this with your actual authentication logic
-          if (credentials.email === "user@example.com" && credentials.password === "password") {
+          const { data: { user }, error } = await supabase.auth.signInWithPassword({
+            email: credentials.email,
+            password: credentials.password,
+          })
+
+          if (error) {
+            console.error('Supabase auth error:', error)
+            return null
+          }
+
+          if (user) {
             return {
-              id: "1",
-              email: credentials.email,
-              name: "Test User",
+              id: user.id,
+              email: user.email,
+              name: user.user_metadata?.full_name || user.email?.split('@')[0],
             }
           }
+
           return null
         } catch (error) {
           console.error("Auth error:", error)
@@ -34,29 +44,34 @@ export const authOptions: AuthOptions = {
       }
     })
   ],
-  pages: {
-    signIn: "/auth/signin",
-    // signOut: '/auth/signout',
-    // error: '/auth/error',
-    // verifyRequest: '/auth/verify-request',
-    // newUser: '/auth/new-user'
-  },
-  session: {
-    strategy: "jwt",
-  },
   callbacks: {
     async jwt({ token, user }) {
       if (user) {
+        const { data: { session } } = await supabase.auth.getSession()
+        token.accessToken = session?.access_token
+        token.refreshToken = session?.refresh_token
         token.id = user.id
       }
       return token
     },
-    async session({ session, token }) {
+    async session({ session, token }): Promise<Session> {
       if (session.user) {
-        (session.user as any).id = token.id
+        session.user.id = token.id as string
       }
       return session
     },
+  },
+  events: {
+    async signOut({ token }) {
+      await supabase.auth.signOut()
+    },
+  },
+  pages: {
+    signIn: "/auth/signin",
+  },
+  session: {
+    strategy: "jwt",
+    maxAge: 30 * 24 * 60 * 60, // 30 days
   },
 }
 
