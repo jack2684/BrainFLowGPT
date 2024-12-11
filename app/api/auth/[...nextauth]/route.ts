@@ -26,7 +26,6 @@ export const authOptions: AuthOptions = {
       },
       async authorize(credentials) {
         if (!credentials?.email || !credentials?.password) {
-          logger.warn('Missing credentials')
           return null
         }
 
@@ -42,7 +41,7 @@ export const authOptions: AuthOptions = {
           }
 
           if (user) {
-            logger.info({ userId: user.id }, 'User successfully authenticated')
+            logger.info({ user }, 'User successfully authenticated')
             return {
               id: user.id,
               email: user.email,
@@ -50,10 +49,10 @@ export const authOptions: AuthOptions = {
             }
           }
 
-          logger.warn('No user returned from Supabase')
           return null
         } catch (error) {
-          logger.error({ error }, "Authentication error")
+          logger.error({ error }, 'Auth error')
+          console.error("Auth error:", error)
           return null
         }
       }
@@ -62,35 +61,26 @@ export const authOptions: AuthOptions = {
   callbacks: {
     async jwt({ token, user }) {
       if (user) {
-        const { data: { session }, error } = await supabase.auth.getSession()
-        if (error) {
-          logger.error({ error }, 'Error getting Supabase session')
-        }
+        const { data: { session } } = await supabase.auth.getSession()
         token.accessToken = session?.access_token
         token.refreshToken = session?.refresh_token
         token.id = user.id
-        logger.info({ userId: user.id }, 'JWT token created/updated')
       }
+      logger.info({ token }, 'JWT token created/updated')
       return token
     },
     async session({ session, token }): Promise<Session> {
       if (session.user) {
         session.user.id = token.id as string
-        logger.info({ userId: session.user.id }, 'Session created/updated')
       }
+      logger.info({ session }, 'Session created/updated')
       return session
     },
   },
   events: {
     async signOut({ token }) {
+      logger.info({ token }, 'Signing out user')
       await supabase.auth.signOut()
-      logger.info({ userId: token.id }, 'User signed out')
-    },
-    async signIn({ user }) {
-      logger.info({ userId: user.id }, 'User signed in')
-    },
-    async error(error) {
-      logger.error({ error }, 'Authentication error occurred')
     },
   },
   pages: {
