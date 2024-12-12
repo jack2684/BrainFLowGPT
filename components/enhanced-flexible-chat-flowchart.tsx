@@ -581,24 +581,19 @@ export function EnhancedFlexibleChatFlowchartComponent() {
     const viewport = document.querySelector('.react-flow__viewport') as HTMLElement
     if (!viewport) return
 
-    // Temporarily hide background and controls
+    // Only hide the background - keep controls and panel visible
     const background = document.querySelector('.react-flow__background') as HTMLElement
-    const controls = document.querySelector('.react-flow__controls') as HTMLElement
-    const panel = document.querySelector('.react-flow__panel') as HTMLElement
-
     if (background) background.style.display = 'none'
-    if (controls) controls.style.display = 'none'
-    if (panel) panel.style.display = 'none'
 
     toPng(viewport, {
       backgroundColor: '#ffffff',
       width: nodesBounds.width,
       height: nodesBounds.height,
-      pixelRatio: 2, // Increase pixel ratio for sharper text
+      pixelRatio: 2,
       style: {
         transform: `translate(${transform[0]}px, ${transform[1]}px) scale(${transform[2]})`,
       },
-      quality: 1, // Maximum quality
+      quality: 1,
       canvasWidth: nodesBounds.width * SCALE_FACTOR,
       canvasHeight: nodesBounds.height * SCALE_FACTOR,
     })
@@ -616,10 +611,8 @@ export function EnhancedFlexibleChatFlowchartComponent() {
         })
       })
       .finally(() => {
-        // Restore visibility of hidden elements
+        // Restore background visibility
         if (background) background.style.display = 'block'
-        if (controls) controls.style.display = 'block'
-        if (panel) panel.style.display = 'block'
       })
   }, [nodes])
 
@@ -912,55 +905,51 @@ export function EnhancedFlexibleChatFlowchartComponent() {
                 )}
                 {isFullscreen ? 'Exit' : 'Maximize'}
               </Button>
-              {!isFullscreen && (
-                <>
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => setShowHistory(!showHistory)}
-                    className="flex items-center gap-2"
-                  >
-                    <History className="h-4 w-4" />
-                    History
-                  </Button>
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={onDownloadImage}
-                    className="flex items-center gap-2"
-                  >
-                    <Share className="h-4 w-4" />
-                    Share as PNG
-                  </Button>
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={(e) => {
-                      e.preventDefault();
-                      handleSaveFlow();
-                    }}
-                    disabled={saveState === 'saving' || saveState === 'saved'}
-                    className="flex items-center gap-2 min-w-[100px] justify-center"
-                  >
-                    {saveState === 'saving' ? (
-                      <>
-                        <Loader2 className="h-4 w-4 animate-spin" />
-                        Saving...
-                      </>
-                    ) : saveState === 'saved' ? (
-                      <>
-                        <Check className="h-4 w-4 text-green-500" />
-                        Saved
-                      </>
-                    ) : (
-                      <>
-                        <CloudUpload className="h-4 w-4" />
-                        Save Flow
-                      </>
-                    )}
-                  </Button>
-                </>
-              )}
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setShowHistory(!showHistory)}
+                className="flex items-center gap-2"
+              >
+                <History className="h-4 w-4" />
+                History
+              </Button>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={onDownloadImage}
+                className="flex items-center gap-2"
+              >
+                <Share className="h-4 w-4" />
+                Share as PNG
+              </Button>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={(e) => {
+                  e.preventDefault();
+                  handleSaveFlow();
+                }}
+                disabled={saveState === 'saving' || saveState === 'saved'}
+                className="flex items-center gap-2 min-w-[100px] justify-center"
+              >
+                {saveState === 'saving' ? (
+                  <>
+                    <Loader2 className="h-4 w-4 animate-spin" />
+                    Saving...
+                  </>
+                ) : saveState === 'saved' ? (
+                  <>
+                    <Check className="h-4 w-4 text-green-500" />
+                    Saved
+                  </>
+                ) : (
+                  <>
+                    <CloudUpload className="h-4 w-4" />
+                    Save Flow
+                  </>
+                )}
+              </Button>
             </Panel>
             {showHistory && (
               <Panel position="top-right" className="conversation-list-overlay">
@@ -989,55 +978,51 @@ export function EnhancedFlexibleChatFlowchartComponent() {
                 )}
                 {isFullscreen ? 'Exit' : 'Maximize'}
               </Button>
-              {!isFullscreen && (
-                <>
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => setShowHistory(!showHistory)}
-                    className="flex items-center gap-2"
-                  >
-                    <History className="h-4 w-4" />
-                    History
-                  </Button>
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={onDownloadImage}
-                    className="flex items-center gap-2"
-                  >
-                    <Share className="h-4 w-4" />
-                    Share as PNG
-                  </Button>
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={(e) => {
-                      e.preventDefault();
-                      handleSaveFlow();
-                    }}
-                    disabled={saveState === 'saving' || saveState === 'saved'}
-                    className="flex items-center gap-2 min-w-[100px] justify-center"
-                  >
-                    {saveState === 'saving' ? (
-                      <>
-                        <Loader2 className="h-4 w-4 animate-spin" />
-                        Saving...
-                      </>
-                    ) : saveState === 'saved' ? (
-                      <>
-                        <Check className="h-4 w-4 text-green-500" />
-                        Saved
-                      </>
-                    ) : (
-                      <>
-                        <CloudUpload className="h-4 w-4" />
-                        Save Flow
-                      </>
-                    )}
-                  </Button>
-                </>
-              )}
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setShowHistory(!showHistory)}
+                className="flex items-center gap-2"
+              >
+                <History className="h-4 w-4" />
+                History
+              </Button>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={onDownloadImage}
+                className="flex items-center gap-2"
+              >
+                <Share className="h-4 w-4" />
+                Share as PNG
+              </Button>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={(e) => {
+                  e.preventDefault();
+                  handleSaveFlow();
+                }}
+                disabled={saveState === 'saving' || saveState === 'saved'}
+                className="flex items-center gap-2 min-w-[100px] justify-center"
+              >
+                {saveState === 'saving' ? (
+                  <>
+                    <Loader2 className="h-4 w-4 animate-spin" />
+                    Saving...
+                  </>
+                ) : saveState === 'saved' ? (
+                  <>
+                    <Check className="h-4 w-4 text-green-500" />
+                    Saved
+                  </>
+                ) : (
+                  <>
+                    <CloudUpload className="h-4 w-4" />
+                    Save Flow
+                  </>
+                )}
+              </Button>
             </Panel>
             <style>
               {`
