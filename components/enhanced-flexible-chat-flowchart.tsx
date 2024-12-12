@@ -410,7 +410,7 @@ export function EnhancedFlexibleChatFlowchartComponent() {
   })
   const updateRequiredRef = useRef(false)
   const updateTimeoutRef = useRef<NodeJS.Timeout | null>(null)
-  const { messages, isLoading, error, sendMessage, downloadChatAsJson, downloadFlowAsJson, importFlowFromJson, saveFlowToDb, conversationId } = useChat()
+  const { messages, isLoading, error, sendMessage, downloadChatAsJson, downloadFlowAsJson, importFlowFromJson, saveFlowToDb, conversationId, setConversationId } = useChat()
   const reactFlowInstance = useRef<ReactFlowInstance | null>(null);
   const [showHistory, setShowHistory] = useState(false)
   const [saveState, setSaveState] = useState<'idle' | 'saving' | 'saved'>('idle')
@@ -746,6 +746,9 @@ export function EnhancedFlexibleChatFlowchartComponent() {
 
       const flowData = result.conversation.flowData as any
 
+      // Set the conversation ID in the useChat state
+      setConversationId(id)
+
       // Create temporary arrays to build the complete flow
       let newNodes: Node[] = []
       let newEdges: Edge[] = []
@@ -827,7 +830,7 @@ export function EnhancedFlexibleChatFlowchartComponent() {
         description: "Failed to load conversation",
       })
     }
-  }, [setNodes, setEdges, onAdd, onDelete, updateNodeData, setHighlightInfo, findParentChain, updateNodePositions])
+  }, [setNodes, setEdges, onAdd, onDelete, updateNodeData, setHighlightInfo, findParentChain, updateNodePositions, setConversationId])
 
   useEffect(() => {
     // If we're in 'saved' state and nodes change, switch back to 'idle'

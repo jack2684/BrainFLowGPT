@@ -231,5 +231,6 @@ export function useChat() {
     importFlowFromJson,
     saveFlowToDb,
     conversationId,
+    setConversationId,
   }
 }
